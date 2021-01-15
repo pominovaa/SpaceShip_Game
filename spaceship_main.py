@@ -35,6 +35,9 @@ class Meteor(pygame.sprite.Sprite):
         self.x_pos = self.x_pos + self.x_speed
         self.y_pos = self.y_pos + self.y_speed
         self.rect.center = self.x_pos, self.y_pos
+
+        if self.rect.centery >= 800:
+            self.kill()
         #self.screen_constrain()
 
     def screen_constrain(self):
@@ -55,15 +58,23 @@ spaceship = SpaceShip('spaceship.png', 640, 500, 10)
 spaceship_group = pygame.sprite.GroupSingle()
 spaceship_group.add(spaceship)
 
-meteor1 = Meteor('Meteor1.png', 400, -100, 1, 10)
 meteor_group = pygame.sprite.Group()
-meteor_group.add(meteor1)
 
+METEOR_EVENT = pygame.USEREVENT
+pygame.time.set_timer(METEOR_EVENT, 100)
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == METEOR_EVENT:
+            meteor_path = random.choice(('Meteor1.png', 'Meteor2.png', 'Meteor3.png')) 
+            random_x_pos = random.randrange(0, 1280)
+            random_y_pos = random.randrange(-500, -50)
+            random_x_speed = random.randrange(-1, 1)
+            random_y_speed = random.randrange(4, 10)
+            meteor = Meteor(meteor_path, random_x_pos, random_y_pos, random_x_speed, random_y_speed)
+            meteor_group.add(meteor)
 
     screen.fill((42,45,51))
     #Meteors
