@@ -73,9 +73,32 @@ class Laser(pygame.sprite.Sprite):
             self.kill()
 
 
+def main_game():
+    laser_group.draw(screen)
+    laser_group.update()
+    #Meteors
+    meteor_group.draw(screen)
+    meteor_group.update()
+    #Spaceship
+    spaceship_group.draw(screen)
+    spaceship_group.update()
+    #collide
+    if pygame.sprite.spritecollide(spaceship_group.sprite, meteor_group, True):
+        spaceship_group.sprite.get_damage(1)
+
+    for laser in laser_group:
+        pygame.sprite.spritecollide(laser, meteor_group, True)
+
+def end_game():
+    text_surface = game_font.render('Game Over', True, (5, 254, 0))
+    text_rect = text_surface.get_rect(center = (640, 360))
+    screen.blit(text_surface, text_rect)
+
+
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
+game_font = pygame.font.SysFont('Goudy Stout', 90)
 
 spaceship = SpaceShip('spaceship.png', 640, 500)
 spaceship_group = pygame.sprite.GroupSingle()
@@ -110,20 +133,10 @@ while True:
             laser_group.add(new_laser)
 
     screen.fill((42,45,51))
-    laser_group.draw(screen)
-    laser_group.update()
-    #Meteors
-    meteor_group.draw(screen)
-    meteor_group.update()
-    #Spaceship
-    spaceship_group.draw(screen)
-    spaceship_group.update()
-    #collide
-    if pygame.sprite.spritecollide(spaceship_group.sprite, meteor_group, True):
-        spaceship_group.sprite.get_damage(1)
-
-    for laser in laser_group:
-        pygame.sprite.spritecollide(laser, meteor_group, True)
+    if spaceship_group.sprite.health > 0:
+        main_game()
+    else:
+        end_game()
 
     #Other
     pygame.display.update()
