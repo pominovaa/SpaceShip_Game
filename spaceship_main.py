@@ -60,6 +60,7 @@ class Meteor(pygame.sprite.Sprite):
         elif self.rect.bottom >= 720:
             self.rect.bottom = 720
 
+
 class Laser(pygame.sprite.Sprite):
     def __init__(self, path, pos, speed):
         super().__init__()
@@ -71,9 +72,11 @@ class Laser(pygame.sprite.Sprite):
         self.rect.centery -= self.speed
         if self.rect.centery <= -100:
             self.kill()
+            
 
 
 def main_game():
+    meteor_score = 0
     laser_group.draw(screen)
     laser_group.update()
     #Meteors
@@ -88,31 +91,37 @@ def main_game():
 
     for laser in laser_group:
         pygame.sprite.spritecollide(laser, meteor_group, True)
+        meteor_score = 1
+
+    
+    return 1, meteor_score
 
 def end_game():
     text_surface = game_font.render('Game Over', True, (5, 254, 0))
-    text_rect = text_surface.get_rect(center = (640, 360))
+    text_rect = text_surface.get_rect(center = (640, 300))
     screen.blit(text_surface, text_rect)
 
+    score_surface = score_font.render(f'score: {score}', True, (5, 254, 0))
+    score_rect = score_surface.get_rect(center = (640, 380))
+    screen.blit(score_surface, score_rect) 
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 game_font = pygame.font.SysFont('Goudy Stout', 90)
+score_font = pygame.font.SysFont('Goudy Stout', 60)
+score = 0
+meteor_score2 = 0
 
 spaceship = SpaceShip('spaceship.png', 640, 500)
 spaceship_group = pygame.sprite.GroupSingle()
 spaceship_group.add(spaceship)
-
-
 
 meteor_group = pygame.sprite.Group()
 METEOR_EVENT = pygame.USEREVENT
 pygame.time.set_timer(METEOR_EVENT, 100)
 
 laser_group = pygame.sprite.Group()
-
-
 
 while True:
     for event in pygame.event.get():
@@ -132,9 +141,15 @@ while True:
             new_laser = Laser('laser.png', event.pos, 15)
             laser_group.add(new_laser)
 
+        if event.type == pygame.MOUSEBUTTONDOWN and spaceship_group.sprite.health <= 0:
+            spaceship_group.sprite.health = 5
+            meteor_group.empty()
+            score = 0
+
     screen.fill((42,45,51))
     if spaceship_group.sprite.health > 0:
-        main_game()
+        score, meteor_score2 += main_game()
+        print(score)
     else:
         end_game()
 
