@@ -90,9 +90,8 @@ def main_game():
         spaceship_group.sprite.get_damage(1)
 
     for laser in laser_group:
-        pygame.sprite.spritecollide(laser, meteor_group, True)
-        meteor_score = 1
-
+        if pygame.sprite.spritecollide(laser, meteor_group, True):
+            meteor_score = 1
     
     return 1, meteor_score
 
@@ -110,6 +109,7 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 game_font = pygame.font.SysFont('Goudy Stout', 90)
 score_font = pygame.font.SysFont('Goudy Stout', 60)
+meteor_score_font = pygame.font.SysFont('Goudy Stout', 20)
 score = 0
 meteor_score2 = 0
 
@@ -145,11 +145,23 @@ while True:
             spaceship_group.sprite.health = 5
             meteor_group.empty()
             score = 0
+            meteor_score2 = 0
+    
 
     screen.fill((42,45,51))
     if spaceship_group.sprite.health > 0:
-        score, meteor_score2 += main_game()
-        print(score)
+        score_temp, meteor_score2_temp = main_game()
+        score += score_temp
+        if meteor_score2_temp > 0:
+            meteor_score2 += meteor_score2_temp 
+        meteor_score_surface = meteor_score_font.render(f'meteors hit: {meteor_score2}', True, (250, 250, 250))
+        meteor_score_rect = meteor_score_surface.get_rect(center = (850, 20))
+        screen.blit(meteor_score_surface, meteor_score_rect) 
+
+        score_surface = meteor_score_font.render(f'score: {score}', True, (250, 250, 250))
+        score_rect = score_surface.get_rect(center = (1150, 20))
+        screen.blit(score_surface, score_rect) 
+        
     else:
         end_game()
 
