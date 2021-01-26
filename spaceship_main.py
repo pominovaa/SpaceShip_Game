@@ -99,10 +99,12 @@ def main_game():
     #collide
     if pygame.sprite.spritecollide(spaceship_group.sprite, meteor_group, True):
         spaceship_group.sprite.get_damage(1)
+        impact.play()
 
     for laser in laser_group:
         if pygame.sprite.spritecollide(laser, meteor_group, True):
             meteor_score = 1
+            explode.play()
         
     #laser timer
     if pygame.time.get_ticks() - laser_timer >= 1000:
@@ -118,7 +120,8 @@ def end_game():
 
     score_surface = score_font.render(f'score: {score}', True, (5, 254, 0))
     score_rect = score_surface.get_rect(center = (640, 380))
-    screen.blit(score_surface, score_rect) 
+    screen.blit(score_surface, score_rect)
+    
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -140,6 +143,14 @@ METEOR_EVENT = pygame.USEREVENT
 pygame.time.set_timer(METEOR_EVENT, 100)
 
 laser_group = pygame.sprite.Group()
+game_active = True
+
+#sounds
+lasershoot = pygame.mixer.Sound('Laser Blasts-SoundBible.com-108608437.mp3')
+explode = pygame.mixer.Sound('Bomb-SoundBible.com-891110113.mp3')
+impact = pygame.mixer.Sound('Light Bulb Breaking-SoundBible.com-53066515.mp3')
+game_over = pygame.mixer.Sound('Sad_Trombone-Joe_Lamb-665429450.mp3')
+
 
 while True:
     for event in pygame.event.get():
@@ -161,12 +172,14 @@ while True:
             laser_timer = pygame.time.get_ticks()
             laser_active = False
             spaceship_group.sprite.discharge()
+            lasershoot.play()
 
         if event.type == pygame.MOUSEBUTTONDOWN and spaceship_group.sprite.health <= 0:
             spaceship_group.sprite.health = 5
             meteor_group.empty()
             score = 0
             meteor_score2 = 0
+            game_active = True
     
 
     screen.fill((42,45,51))
@@ -185,6 +198,9 @@ while True:
         
     else:
         end_game()
+        if game_active:
+            game_over.play()
+            game_active = False
 
     #Other
     pygame.display.update()
